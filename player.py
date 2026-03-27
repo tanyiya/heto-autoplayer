@@ -38,30 +38,28 @@ def play(song):
 
 
 def start():
+    # Load the parsed score from the temp file
+    song_data = json.load(open("parsed.json", "r", encoding="utf-8"))
 
-    song = json.load(open("parsed.json", "r", encoding="utf-8"))
+    # Fix: Multi-hand detection and assignment
+    # We prioritize right_hand if it's a single-hand song and left is empty
+    l_hand = song_data.get("left_hand", [])
+    r_hand = song_data.get("right_hand", [])
+    t_hand = song_data.get("third_hand", [])
 
+    # Logic for Single Hand (單手)
     if music["hand"] == "單手":
-
-        left_hand = song["left_hand"]
-
-        Fthread = threading.Thread(target=play_hand, args=(left_hand,))
+        # Use whichever hand actually has data
+        active_hand = r_hand if r_hand else l_hand
+        Fthread = threading.Thread(target=play_hand, args=(active_hand,))
         Fthread.start()
         Fthread.join()
 
+    # Logic for Two Hands (雙手)
     elif music["hand"] == "雙手":
-
-        left_hand = song["left_hand"]
-        right_hand = song["right_hand"]
-        
-        left_total = sum(duration for chord, duration in left_hand)
-        right_total = sum(duration for chord, duration in right_hand)
-
-        print("left:", left_total)
-        print("right:", right_total)
-
-        Fthread = threading.Thread(target=play_hand, args=(right_hand,))
-        Sthread = threading.Thread(target=play_hand, args=(left_hand,))
+        # Ensure we don't crash if one hand is missing
+        Fthread = threading.Thread(target=play_hand, args=(r_hand,))
+        Sthread = threading.Thread(target=play_hand, args=(l_hand,))
 
         Fthread.start()
         Sthread.start()
@@ -69,23 +67,11 @@ def start():
         Fthread.join()
         Sthread.join()
 
+    # Logic for Three Hands (三手)
     else:
-
-        left_hand = song["left_hand"]
-        right_hand = song["right_hand"]
-        third_hand = song["third_hand"]
-
-        left_total = sum(duration for chord, duration in left_hand)
-        right_total = sum(duration for chord, duration in right_hand)
-        third_total = sum(duration for chord, duration in third_hand)
-
-        print("left:", left_total)
-        print("right:", right_total)
-        print("third:",third_total)
-
-        Fthread = threading.Thread(target=play_hand, args=(right_hand,))
-        Sthread = threading.Thread(target=play_hand, args=(left_hand,))
-        Tthread = threading.Thread(target=play_hand, args=(third_hand,))
+        Fthread = threading.Thread(target=play_hand, args=(r_hand,))
+        Sthread = threading.Thread(target=play_hand, args=(l_hand,))
+        Tthread = threading.Thread(target=play_hand, args=(t_hand,))
 
         Fthread.start()
         Sthread.start()
@@ -95,4 +81,4 @@ def start():
         Sthread.join()
         Tthread.join()
 
-    print(f"{music['title']}演奏結束")
+    print(f"{music['title']} 演奏結束")

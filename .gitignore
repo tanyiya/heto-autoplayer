@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 *.pyo
+/song.json
+/converted_song.json
+/Magnetic ILLIT.mid

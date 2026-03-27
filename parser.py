@@ -9,7 +9,7 @@ def parse_score(score_str):
         chord=[]
         duration = 1
         dot_count = 0
-        if score_str[i] not in "[]01234567^_-.":
+        if score_str[i] not in "[]01234567^_-./":
             print("未知符號:", score_str[i])
             i+=1
         # 判斷 chord
@@ -19,26 +19,22 @@ def parse_score(score_str):
                 if score_str[i] in "1234567":
                     note = score_str[i]
                     i += 1
-                    if i < length and score_str[i] in "^_":
+                    while i < length and score_str[i] in "^_/":
                         note += score_str[i]
                         i += 1
                     chord.append(note)
                 else:
                     i += 1
             i += 1  # 跳過 ]
+
         elif score_str[i] in "01234567-":
             note = score_str[i]
             i += 1
-            if i < length and score_str[i] in "^_":
+            while i < length and score_str[i] in "^_/":
                 note += score_str[i]
                 i += 1
-                if i < length and score_str[i] in "^":
-                    note += score_str[i]
-                    i += 1
-
             if note != "0":
-                chord=[note]
-        
+                chord = [note]
         
         # 延長符號 '-'
         while i < length and score_str[i] == ".":
